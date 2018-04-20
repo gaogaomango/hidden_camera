@@ -6,6 +6,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Point;
@@ -23,9 +25,13 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -207,12 +213,10 @@ public class CameraFragment extends AbstractCameraFragment
             picName.append(now);
             picName.append(random);
             picName.append(".jpg");
+            mFile = new File(getActivity().getExternalFilesDir(null), picName.toString());
         } catch (IllegalArgumentException e){
             e.printStackTrace();
         }
-
-        mFile = new File(getActivity().getExternalFilesDir(null), "pic.jpg");
-//        mFile = new File(getActivity().getExternalFilesDir(null), picName.toString());
     }
 
     @Override
@@ -551,9 +555,37 @@ public class CameraFragment extends AbstractCameraFragment
 
         @Override
         public void onImageAvailable(ImageReader reader) {
-            mBackgroundHandler.post(new ImageSaver(reader.acquireNextImage(), mFile));
+            mBackgroundHandler.post(new ImageSaver(reader.acquireNextImage(), mFile, new SavedFileCallbackImpl() {
+                @Override
+                public void save() {
+                    registerImageToAlbum(mFile);
+                }
+            }));
         }
 
+    };
+
+    private void registerImageToAlbum(File file){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(checkPermissions()){
+                Bitmap bmp = BitmapFactory.decodeFile(file.getPath());
+                String savedFileUrl = MediaStore.Images.Media.insertImage(this.getActivity().getContentResolver(), bmp, file.getName(), "description");
+                String[] mimeType = null;
+                MediaScannerConnection.scanFile(this.getActivity().getApplicationContext(),
+                        new String[]{savedFileUrl},
+                        mimeType,
+                        mScanCompletedListener);
+
+            }
+        }
+    }
+
+    private MediaScannerConnection.OnScanCompletedListener mScanCompletedListener = new MediaScannerConnection.OnScanCompletedListener() {
+        @Override
+        public void onScanCompleted(String path, Uri uri) {
+            Log.d("MediaScannerConnection", "Scanned " + path + ":");
+            Log.d("MediaScannerConnection", "-> uri=" + uri);
+        }
     };
 
     /**
@@ -562,8 +594,11 @@ public class CameraFragment extends AbstractCameraFragment
     private void openCamera(int width, int height) {
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
-            requestCameraPermission();
-            return;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if(!checkPermissions()){
+                    return;
+                }
+            }
         }
         setUpCameraOutputs(width, height);
         configureTransform(width, height);
@@ -817,7 +852,6 @@ public class CameraFragment extends AbstractCameraFragment
         mTextureView.setTransform(matrix);
     }
 
-
     /**
      * Compares two {@code Size}s based on their areas.
      */
@@ -846,9 +880,12 @@ public class CameraFragment extends AbstractCameraFragment
          */
         private final File mFile;
 
-        ImageSaver(Image image, File file) {
+        private final SavedFileCallbackImpl mSavedFileCallbackImpl;
+
+        ImageSaver(Image image, File file, SavedFileCallbackImpl savedFileCallbackImpl) {
             mImage = image;
             mFile = file;
+            mSavedFileCallbackImpl = savedFileCallbackImpl;
         }
 
         @Override
@@ -860,6 +897,7 @@ public class CameraFragment extends AbstractCameraFragment
             try {
                 output = new FileOutputStream(mFile);
                 output.write(bytes);
+                mSavedFileCallbackImpl.save();
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
