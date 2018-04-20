@@ -1,4 +1,4 @@
-package hiddencamera.co.jp.hiddencamera.view;
+package hiddencamera.co.jp.hiddencamera.view.util;
 
 import android.content.Context;
 import android.util.AttributeSet;

@@ -1,39 +1,33 @@
 package hiddencamera.co.jp.hiddencamera.activity;
 
 import android.os.Bundle;
-import android.widget.Button;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
 
 import hiddencamera.co.jp.hiddencamera.R;
+import hiddencamera.co.jp.hiddencamera.view.welcome.WelcomePagerAdapter;
 
 public class WelcomeActivity extends AbstractHCActivity {
 
-    Bundle mBundle;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
-
-        Button cameraBtn = (Button) findViewById(R.id.open_camera);
-        Button videoBtn = (Button) findViewById(R.id.open_video);
-
-//        cameraBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (null == savedInstanceState) {
-//                    getSupportFragmentManager().beginTransaction()
-//                            .replace(R.id.container, Camera2BasicFragment.newInstance())
-//                            .commit();
-//                }
-//            }
-//        });
-
-
+        setViews();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
+    private void setViews() {
+        toolbar = findViewById(R.id.toolBar);
+        setSupportActionBar(toolbar);
+        FragmentManager manager = getSupportFragmentManager();
+        ViewPager viewPager = findViewById(R.id.welcome_viewpager);
+        WelcomePagerAdapter adapter = new WelcomePagerAdapter(this, manager);
+        viewPager.setAdapter(adapter);
+        TabLayout tabLayout = findViewById(R.id.tabLayout);
+        tabLayout.setupWithViewPager(viewPager);
     }
 }

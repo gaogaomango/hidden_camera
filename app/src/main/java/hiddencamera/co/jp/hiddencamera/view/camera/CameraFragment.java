@@ -1,4 +1,4 @@
-package hiddencamera.co.jp.hiddencamera.view;
+package hiddencamera.co.jp.hiddencamera.view.camera;
 
 import android.Manifest;
 import android.app.Activity;
@@ -53,7 +53,8 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import hiddencamera.co.jp.hiddencamera.R;
-import hiddencamera.co.jp.hiddencamera.utils.DateUtils;
+import hiddencamera.co.jp.hiddencamera.commons.utils.DateUtils;
+import hiddencamera.co.jp.hiddencamera.view.util.AutoFitTextureView;
 
 public class CameraFragment extends AbstractCameraFragment
         implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
@@ -191,7 +192,7 @@ public class CameraFragment extends AbstractCameraFragment
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         view.findViewById(R.id.picture).setOnClickListener(this);
         view.findViewById(R.id.info).setOnClickListener(this);
-        mTextureView = (AutoFitTextureView) view.findViewById(R.id.texture);
+        mTextureView = view.findViewById(R.id.texture);
     }
 
     private static final int PIC_RAMDOM_NUM = 10000;

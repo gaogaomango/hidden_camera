@@ -2,6 +2,8 @@
     <string name="app_name">HiddenCamera</string>
     <string name="open_camera">Open Camera</string>
     <string name="open_video_camenra">Open Video Camera</string>
+    <string name="title_camera">Camera</string>
+    <string name="title_video">Video</string>
     <string name="picture">Picture</string>
     <string name="description_info">Info</string>
     <string name="request_permission">This sample needs camera permission.</string>

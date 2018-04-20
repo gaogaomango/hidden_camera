@@ -1,4 +1,4 @@
-package hiddencamera.co.jp.hiddencamera.utils;
+package hiddencamera.co.jp.hiddencamera.commons.utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

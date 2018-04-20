@@ -3,7 +3,7 @@ package hiddencamera.co.jp.hiddencamera.activity;
 import android.os.Bundle;
 
 import hiddencamera.co.jp.hiddencamera.R;
-import hiddencamera.co.jp.hiddencamera.view.CameraFragment;
+import hiddencamera.co.jp.hiddencamera.view.camera.CameraFragment;
 
 public class CameraActivity extends AbstractHCActivity {
 
